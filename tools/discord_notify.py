@@ -75,16 +75,16 @@ def generate_atomic_message_with_claude(task):
 
         client = Anthropic()
 
-        prompt = f"""You are an AI agent orchestrating HealEase MVP development. Analyze this task and generate an Execution Atomizer action.
+        prompt = f"""You are an AI agent orchestrating HealEase MVP development. Analyze this task and generate an Execution Atomizer action with VISUAL FLAIR.
 
 Task Details:
-- Title: {task.get('title', 'Unknown')}
-- Description: {task.get('notes', '')}
-- Priority: {task.get('priority', 'Medium')}
-- Status: {task.get('status', 'Ready')}
-- Due: {task.get('due_date', 'TBD')}
+📌 Title: {task.get('title', 'Unknown')}
+📝 Description: {task.get('notes', '')}
+🎯 Priority: {task.get('priority', 'Medium')}
+⏳ Status: {task.get('status', 'Ready')}
+📅 Due: {task.get('due_date', 'TBD')}
 
-Generate a precise Execution Atomizer message. Follow this EXACT format:
+Generate a precise Execution Atomizer message. Use strategic emojis to make it VISUALLY ENGAGING (not overdone). Follow this EXACT format:
 
 🔧 ATOMIC NEXT ACTION
 
@@ -95,21 +95,21 @@ Layer: [ONE ONLY: service | controller | route | UI component | database]
 File: [infer exact path based on task type]
 
 What to do:
-- [specific step 1]
-- [specific step 2]
-- [specific step 3 if needed]
+✅ [specific step 1]
+✅ [specific step 2]
+✅ [specific step 3 if needed]
 
 Done when:
-- [measurable result 1]
-- [verifiable condition 2]
+🎯 [measurable result 1]
+🎯 [verifiable condition 2]
 
 Test:
-- [how to verify locally]
+🧪 [how to verify locally]
 
 Time estimate:
-~[realistic minutes] minutes
+⏱️ ~[realistic minutes] minutes
 
-Make it specific to THIS task. Don't use generic templates. If multiple layers involved, pick ONLY the first (service before controller before route before UI)."""
+IMPORTANT: Make it specific to THIS task. Use relevant emojis throughout (⚙️ for backend, 🎨 for UI, 🗄️ for database, etc). Don't use generic templates. If multiple layers involved, pick ONLY the first (service before controller before route before UI)."""
 
         print(f"[CLAUDE] Calling Claude Haiku API...", file=sys.stderr)
         message = client.messages.create(
