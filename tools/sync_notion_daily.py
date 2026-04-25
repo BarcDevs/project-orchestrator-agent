@@ -28,6 +28,8 @@ def fetch_notion_database(db_id):
     """Fetch Notion database pages via Notion API."""
     try:
         api_key = os.getenv("NOTION_API_KEY")
+        print(f"[DEBUG] NOTION_API_KEY set: {bool(api_key)}", file=sys.stderr)
+        print(f"[DEBUG] NOTION_API_KEY value starts with: {api_key[:10] if api_key else 'NONE'}", file=sys.stderr)
         if not api_key:
             raise Exception("NOTION_API_KEY environment variable not set")
 
