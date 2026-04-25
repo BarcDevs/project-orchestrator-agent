@@ -79,7 +79,7 @@ def generate_atomic_message_with_claude(task, structure=None):
             structure_ref = "\n## Project Architecture (from Notion)\n\n"
             by_layer = {}
             for item in structure:
-                layer = item.get("status", "Unknown")  # Using status field as layer
+                layer = item.get("Layer", "Unknown")
                 if layer not in by_layer:
                     by_layer[layer] = []
                 by_layer[layer].append(item)
@@ -87,7 +87,12 @@ def generate_atomic_message_with_claude(task, structure=None):
             for layer, items in by_layer.items():
                 structure_ref += f"**{layer}:**\n"
                 for item in items:
-                    structure_ref += f"- {item.get('title', 'Unknown')}: {item.get('notes', '')}\n"
+                    root = item.get("Root Path", "")
+                    path = item.get("Path", "")
+                    full_path = f"{root}/{path}" if root else path
+                    name = item.get("Name", "Unknown")
+                    purpose = item.get("Purpose", "")
+                    structure_ref += f"- {name} ({full_path}): {purpose}\n"
         else:
             structure_ref = "\n## Project Architecture\n(Structure data not available)\n"
 
