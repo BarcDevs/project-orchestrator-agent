@@ -143,6 +143,7 @@ Time estimate:
 - Make it specific to THIS task
 - Use relevant emojis (⚙️ backend, 🎨 UI, 🗄️ database)
 - Pick ONLY first layer if multiple layers involved (service before controller before route before UI)
+"""
 
         print(f"[CLAUDE] Calling Claude Haiku API...", file=sys.stderr)
         message = client.messages.create(
