@@ -18,10 +18,11 @@ except ImportError:
     print("Required packages not installed. Run: pip install requests python-dotenv", file=sys.stderr)
     sys.exit(1)
 
-# Load .env file from project root
+# Load .env file from project root (if exists - allows local testing)
 project_root = Path(__file__).parent.parent
 dotenv_path = project_root / ".env"
-load_dotenv(dotenv_path)
+if dotenv_path.exists():
+    load_dotenv(dotenv_path)
 
 def fetch_notion_database(db_id):
     """Fetch Notion database pages via Notion API."""

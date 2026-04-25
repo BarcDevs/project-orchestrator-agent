@@ -21,7 +21,8 @@ except ImportError:
 
 project_root = Path(__file__).parent.parent
 dotenv_path = project_root / ".env"
-load_dotenv(dotenv_path)
+if dotenv_path.exists():
+    load_dotenv(dotenv_path)
 
 def send_discord_message(channel_id, content):
     """Send message to Discord channel."""
