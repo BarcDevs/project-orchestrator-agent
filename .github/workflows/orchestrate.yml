@@ -1,0 +1,35 @@
+name: HealEase Daily Orchestration
+
+on:
+  schedule:
+    # Run daily at 8pm UTC (11pm Asia/Jerusalem)
+    - cron: '0 20 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  orchestrate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests python-dotenv anthropic
+
+      - name: Sync Notion tasks
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        run: python tools/sync_notion_daily.py
+
+      - name: Analyze + Post to Discord
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCORD_API_KEY: ${{ secrets.DISCORD_API_KEY }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
+        run: python tools/discord_notify.py
