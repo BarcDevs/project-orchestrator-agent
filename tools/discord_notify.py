@@ -63,7 +63,7 @@ def pick_next_task(tasks):
 
     return None
 
-def generate_atomic_message_with_claude(task):
+def generate_atomic_message_with_claude(task, structure=None):
     """Use Claude to generate intelligent Execution Atomizer message."""
     try:
         api_key = os.getenv("ANTHROPIC_API_KEY")
@@ -73,26 +73,49 @@ def generate_atomic_message_with_claude(task):
         print(f"\n[CLAUDE] Task picked: '{task.get('title', 'Unknown')}'", file=sys.stderr)
         print(f"[CLAUDE] Priority: {task.get('priority', 'Medium')} | Status: {task.get('status', 'Ready')}", file=sys.stderr)
 
+        # Build structure reference from Notion data
+        structure_ref = ""
+        if structure:
+            structure_ref = "\n## Project Architecture (from Notion)\n\n"
+            by_layer = {}
+            for item in structure:
+                layer = item.get("status", "Unknown")  # Using status field as layer
+                if layer not in by_layer:
+                    by_layer[layer] = []
+                by_layer[layer].append(item)
+
+            for layer, items in by_layer.items():
+                structure_ref += f"**{layer}:**\n"
+                for item in items:
+                    structure_ref += f"- {item.get('title', 'Unknown')}: {item.get('notes', '')}\n"
+        else:
+            structure_ref = "\n## Project Architecture\n(Structure data not available)\n"
+
         client = Anthropic()
 
         prompt = f"""You are an AI agent orchestrating HealEase MVP development. Analyze this task and generate an Execution Atomizer action with VISUAL FLAIR.
 
-Task Details:
+{structure_ref}
+
+## Task
+
 📌 Title: {task.get('title', 'Unknown')}
 📝 Description: {task.get('notes', '')}
 🎯 Priority: {task.get('priority', 'Medium')}
 ⏳ Status: {task.get('status', 'Ready')}
 📅 Due: {task.get('due_date', 'TBD')}
 
-Generate a precise Execution Atomizer message. Use strategic emojis to make it VISUALLY ENGAGING (not overdone). Follow this EXACT format:
+## Generate Execution Atomizer Action
+
+Format:
 
 🔧 ATOMIC NEXT ACTION
 
 Task: [one atomic action - single layer only]
 
-Layer: [ONE ONLY: service | controller | route | UI component | database]
+Layer: [ONE ONLY: service | controller | route | UI component | database | middleware]
 
-File: [infer exact path based on task type]
+Location: [Describe location functionally based on structure above. DO NOT guess exact paths. Example: "SERVER: src/services/" or "CLIENT: src/components/check-in/"]
 
 What to do:
 🎯 [specific step 1]
@@ -109,7 +132,12 @@ Test:
 Time estimate:
 ⏱️ ~[realistic minutes] minutes
 
-IMPORTANT: Make it specific to THIS task. Use relevant emojis throughout (⚙️ for backend, 🎨 for UI, 🗄️ for database, etc). Don't use generic templates. If multiple layers involved, pick ONLY the first (service before controller before route before UI)."""
+**RULES:**
+- Use STRUCTURE above as source of truth
+- Describe location functionally (don't hallucinate exact paths)
+- Make it specific to THIS task
+- Use relevant emojis (⚙️ backend, 🎨 UI, 🗄️ database)
+- Pick ONLY first layer if multiple layers involved (service before controller before route before UI)
 
         print(f"[CLAUDE] Calling Claude Haiku API...", file=sys.stderr)
         message = client.messages.create(
@@ -143,7 +171,8 @@ def format_status(tasks, sync_data):
 
     if next_task:
         print(f"[NOTIFY] Generating AI message...", file=sys.stderr)
-        return generate_atomic_message_with_claude(next_task)
+        structure = sync_data.get("structure", [])
+        return generate_atomic_message_with_claude(next_task, structure)
 
     return "✅ No tasks ready. All caught up!"
 

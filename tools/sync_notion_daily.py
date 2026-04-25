@@ -101,12 +101,14 @@ def extract_date(prop):
 
 def sync_notion():
     """
-    Sync HealEase Notion docs: timeline + orchestration dashboard.
-    Extract task data (title, status, priority, due date).
+    Sync HealEase Notion: orchestration + structure.
+    Extract task data + architecture structure.
     Save to .tmp/notion_sync.json for agent consumption.
     """
 
     ORCHESTRATION_ID = "896b0f0ff56246d589265d6091c79fa8"
+    STRUCTURE_CLIENT_ID = "569c1733e17f4379939daa1242d85664"
+    STRUCTURE_SERVER_ID = "cf5967d829b84c6b9226a9d81c2f3010"
     TIMELINE_ID = "3129e15469d28100be18df6e1ce0a984"
 
     output_dir = Path(".tmp")
@@ -116,16 +118,18 @@ def sync_notion():
     sync_data = {
         "synced_at": datetime.now().isoformat(),
         "tasks": [],
+        "structure": [],
+        "timeline": [],
         "task_count": 0,
         "status": "pending",
         "error": None
     }
 
     try:
-        print(f"[{datetime.now().isoformat()}] Syncing Notion orchestration...", file=sys.stderr)
+        print(f"[{datetime.now().isoformat()}] Syncing HealEase Notion...", file=sys.stderr)
 
         # Fetch orchestration database
-        print(f"Fetching orchestration database ({ORCHESTRATION_ID})...", file=sys.stderr)
+        print(f"Fetching tasks ({ORCHESTRATION_ID})...", file=sys.stderr)
         orch_data = fetch_notion_database(ORCHESTRATION_ID)
 
         if not orch_data:
@@ -135,8 +139,29 @@ def sync_notion():
         tasks = extract_tasks_from_db(orch_data)
         print(f"Extracted {len(tasks)} tasks", file=sys.stderr)
 
+        # Fetch structure databases (client + server)
+        print(f"Fetching client structure ({STRUCTURE_CLIENT_ID})...", file=sys.stderr)
+        client_struct_data = fetch_notion_database(STRUCTURE_CLIENT_ID)
+        client_structure = extract_tasks_from_db(client_struct_data) if client_struct_data else []
+        print(f"Extracted {len(client_structure)} client structure entries", file=sys.stderr)
+
+        print(f"Fetching server structure ({STRUCTURE_SERVER_ID})...", file=sys.stderr)
+        server_struct_data = fetch_notion_database(STRUCTURE_SERVER_ID)
+        server_structure = extract_tasks_from_db(server_struct_data) if server_struct_data else []
+        print(f"Extracted {len(server_structure)} server structure entries", file=sys.stderr)
+
+        structure = client_structure + server_structure
+
+        # Fetch timeline database
+        print(f"Fetching timeline ({TIMELINE_ID})...", file=sys.stderr)
+        timeline_data = fetch_notion_database(TIMELINE_ID)
+        timeline = extract_tasks_from_db(timeline_data) if timeline_data else []
+        print(f"Extracted {len(timeline)} timeline entries", file=sys.stderr)
+
         # Populate sync data
         sync_data["tasks"] = tasks
+        sync_data["structure"] = structure
+        sync_data["timeline"] = timeline
         sync_data["task_count"] = len(tasks)
         sync_data["status"] = "synced"
 
