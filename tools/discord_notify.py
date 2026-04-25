@@ -95,13 +95,13 @@ Layer: [ONE ONLY: service | controller | route | UI component | database]
 File: [infer exact path based on task type]
 
 What to do:
-✅ [specific step 1]
-✅ [specific step 2]
-✅ [specific step 3 if needed]
+🎯 [specific step 1]
+🎯 [specific step 2]
+🎯 [specific step 3 if needed]
 
 Done when:
-🎯 [measurable result 1]
-🎯 [verifiable condition 2]
+🔍 [measurable result 1]
+🔍 [verifiable condition 2]
 
 Test:
 🧪 [how to verify locally]
